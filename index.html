@@ -76,6 +76,7 @@
         
         <button onclick="generateURL()">Generate URL</button>
         <button onclick="openURL()">Open in Binance App</button>
+        <button onclick="openBinanceCopyTrade()">Open in Binance App</button>
         
         <div class="result" id="result">
             Generated URL will appear here...
@@ -99,6 +100,12 @@
                 alert('Please generate a URL first!');
             }
         }
+        
+        function openBinanceCopyTrade() {
+            // Thay thế `com.game.apple.xpoker://` bằng deep link thực tế mà Binance hỗ trợ nếu có.
+            window.location.href = "binance://future";
+        }
+    
     </script>
 </body>
 </html>
