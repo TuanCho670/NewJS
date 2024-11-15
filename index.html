@@ -86,7 +86,7 @@
         function generateURL() {
             const portfolioId = document.getElementById('portfolioId').value;
             const timeRange = document.getElementById('timeRange').value;
-            const baseUrl = 'binance://native.binance.info/bapi/futures/v1/public/future/copy-trade/lead-portfolio/performance';
+            const baseUrl = 'binance://future/copy-trade/lead-portfolio/performance';
             const url = `${baseUrl}?portfolioId=${portfolioId}&timeRange=${timeRange}`;
             document.getElementById('result').innerText = url;
         }
