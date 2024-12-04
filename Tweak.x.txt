@@ -1,0 +1,96 @@
+#import <UIKit/UIKit.h>
+
+static UIButton *floatingButton;
+static BOOL isAutoClickEnabled = NO;
+static NSTimer *clickTimer;
+
+%hook UIApplication
+
+- (void)applicationDidFinishLaunching:(UIApplication *)application {
+    %orig;
+
+    // Tạo nút nổi (floating button)
+    floatingButton = [UIButton buttonWithType:UIButtonTypeCustom];
+    floatingButton.frame = CGRectMake(20, 100, 60, 60);
+    floatingButton.layer.cornerRadius = 30;
+
+    // Thêm hình ảnh cho nút (đường dẫn có thể thay đổi theo vị trí thật của file)
+    UIImage *buttonImage = [UIImage imageWithContentsOfFile:@"/var/mobile/Library/Preferences/AutoGame/button-icon.png"];
+    if (buttonImage) {
+        [floatingButton setImage:buttonImage forState:UIControlStateNormal];
+    } else {
+        NSLog(@"[Tweak] Không tìm thấy button-icon.png tại đường dẫn chỉ định.");
+    }
+
+    // Thêm hiệu ứng giao diện
+    floatingButton.layer.shadowColor = [UIColor blackColor].CGColor;
+    floatingButton.layer.shadowOpacity = 0.5;
+    floatingButton.layer.shadowOffset = CGSizeMake(0, 2);
+    floatingButton.layer.shadowRadius = 4;
+    [floatingButton setBackgroundColor:[UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:0.8]];
+
+    // Thêm hành động khi nhấn nút
+    [floatingButton addTarget:self action:@selector(toggleAutoClick) forControlEvents:UIControlEventTouchUpInside];
+
+    // Tìm UIView chính để thêm nút
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+        UIView *keyView = [self keyWindowView];
+        if (keyView) {
+            [keyView addSubview:floatingButton];
+
+            // Thêm gesture để di chuyển nút
+            UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePanGesture:)];
+            [floatingButton addGestureRecognizer:panGesture];
+        } else {
+            NSLog(@"[Tweak] Không thể tìm thấy key view để thêm floating button.");
+        }
+    });
+}
+
+%new
+- (UIView *)keyWindowView {
+    // Tìm UIView chính của ứng dụng
+    UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
+    if (!keyWindow) {
+        NSArray *windows = [UIApplication sharedApplication].windows;
+        keyWindow = windows.firstObject; // Lấy cửa sổ đầu tiên (trường hợp keyWindow không tồn tại)
+    }
+    return keyWindow;
+}
+
+%new
+- (void)toggleAutoClick {
+    isAutoClickEnabled = !isAutoClickEnabled;
+
+    if (isAutoClickEnabled) {
+        // Bật auto click với tần suất 0.1 giây
+        clickTimer = [NSTimer scheduledTimerWithTimeInterval:0.1
+                                                      target:self
+                                                    selector:@selector(simulateClick)
+                                                    userInfo:nil
+                                                     repeats:YES];
+        floatingButton.backgroundColor = [UIColor greenColor];
+    } else {
+        [clickTimer invalidate];
+        clickTimer = nil;
+        floatingButton.backgroundColor = [UIColor colorWithRed:0.2 green:0.2 blue:0.2 alpha:0.8];
+    }
+}
+
+%new
+- (void)simulateClick {
+    // Tạo sự kiện click đơn giản (mô phỏng việc "nhấn")
+    NSLog(@"[Tweak] Simulating click...");
+    // Nếu bạn muốn tích hợp các hành động khác, thêm chúng vào đây
+}
+
+%new
+- (void)handlePanGesture:(UIPanGestureRecognizer *)gesture {
+    // Cho phép người dùng kéo nút
+    CGPoint translation = [gesture translationInView:floatingButton.superview];
+    gesture.view.center = CGPointMake(gesture.view.center.x + translation.x,
+                                      gesture.view.center.y + translation.y);
+    [gesture setTranslation:CGPointZero inView:floatingButton.superview];
+}
+
+%end
