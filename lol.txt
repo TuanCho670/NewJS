@@ -1,64 +1,39 @@
 #import <UIKit/UIKit.h>
+
+@interface MenuController : NSObject
+
++ (instancetype)sharedInstance;
+- (void)showMenuInView:(UIView *)view;
+- (void)addButton:(NSString *)title action:(void(^)(void))action;
+
+@property (nonatomic, strong) UIView *menuView;
+@property (nonatomic, strong) UIScrollView *scrollView;
+
+@end
+
 #import "menu.h"
 
-@implementation menu 
+@interface Utils : NSObject
+
++ (instancetype)sharedInstance;
+- (void)setupMenu;
+
 @end
 
-@implementation button
-@end
+#import <UIKit/UIKit.h>
+#import "utils.h"
+#import "menu.h"
 
-@implementation slider
-@end
+// Hook vào app
+%hook AppDelegate
 
-@implementation indexs
-@end
-
-@implementation patch
-@end
-
-menu *menu;
-button *button;
-patch *patch;
-slider *slider;
-indexs *indexs;
-
-
-
-
-
-@interface menu : NSObject {
-    const char *frameworkName;
+- (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
+    BOOL ret = %orig;
+    
+    // Setup menu sau khi app khởi động
+    [[Utils sharedInstance] setupMenu];
+    
+    return ret;
 }
 
-+(instancetype)shared;
-+(void)initFrameworkName:(const char *)name;
--(void)initFrameworkName:(const char *)name;
-
-@end
-
-@interface button : NSObject
-+(instancetype)shared;
--(BOOL)buttonOn:(NSString *)name;
-@end
-
-@interface slider : NSObject
-+(instancetype)shared;
--(float)valueFromSlider:(NSString *)name;
-@end
-
-@interface indexs : NSObject
-+(instancetype)shared;
--(NSString *)valueFromIndex:(NSString *)name;
--(BOOL)expected:(NSString *)value fromIndexValue:(NSString *)name;
-@end
-
-@interface patch : NSObject
-+(instancetype)shared;
--(void)offset:(NSString *)offset byte:(NSString *)byte;
-@end
-
-extern menu *menu;
-extern button *button;
-extern patch *patch;
-extern slider *slider;
-extern indexs *indexs;
+%end
