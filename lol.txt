@@ -1,0 +1,64 @@
+#import <UIKit/UIKit.h>
+#import "menu.h"
+
+@implementation menu 
+@end
+
+@implementation button
+@end
+
+@implementation slider
+@end
+
+@implementation indexs
+@end
+
+@implementation patch
+@end
+
+menu *menu;
+button *button;
+patch *patch;
+slider *slider;
+indexs *indexs;
+
+
+
+
+
+@interface menu : NSObject {
+    const char *frameworkName;
+}
+
++(instancetype)shared;
++(void)initFrameworkName:(const char *)name;
+-(void)initFrameworkName:(const char *)name;
+
+@end
+
+@interface button : NSObject
++(instancetype)shared;
+-(BOOL)buttonOn:(NSString *)name;
+@end
+
+@interface slider : NSObject
++(instancetype)shared;
+-(float)valueFromSlider:(NSString *)name;
+@end
+
+@interface indexs : NSObject
++(instancetype)shared;
+-(NSString *)valueFromIndex:(NSString *)name;
+-(BOOL)expected:(NSString *)value fromIndexValue:(NSString *)name;
+@end
+
+@interface patch : NSObject
++(instancetype)shared;
+-(void)offset:(NSString *)offset byte:(NSString *)byte;
+@end
+
+extern menu *menu;
+extern button *button;
+extern patch *patch;
+extern slider *slider;
+extern indexs *indexs;
